@@ -29,7 +29,7 @@ void dog_2_50(const Mat &in, Mat &out)
 
 static int verbose;
 
-int main(int argc, char** argv) {
+int _main(int argc, char** argv) {
   int numWorkers = __cilkrts_get_nworkers();
   cout << "number of cilk workers = " << numWorkers << endl;
 
@@ -88,7 +88,7 @@ int main(int argc, char** argv) {
   Mat prediction = Mat::zeros(image.size(), CV_32F);
   
   float *p = prediction.ptr<float>(0);
-  for (int i = 0; i < prediction.total(); i++)
+  cilk_for (int i = 0; i < prediction.total(); i++)
       for (int feature_idx = 0; feature_idx < 16; feature_idx++) { 
           p[i] += classifier_image.at<float>(feature_idx, feature_ptrs[feature_idx][i]);
       }
@@ -97,4 +97,13 @@ int main(int argc, char** argv) {
   prediction = -prediction;
   exp(prediction, prediction);
   prediction = 1.0 / (1.0 + prediction);
+  cout << "done\n";
+
+  return 1;
+}
+
+int main(int argc, char **argv)
+{
+    for (int i = 0; i < 1000; i++)
+        _main(argc, argv);
 }
